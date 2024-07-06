@@ -1,3 +1,4 @@
+
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: blue; icon-glyph: subway;
@@ -131,6 +132,7 @@ function createWidget() {
   let PADDING
   let LOGO_SIZE
   let STATION_SIZE
+  let INFO_SIZE
   let DEPART_SIZE
   let LOGO_FONT_SIZE
   let STATION_FONT_SIZE
@@ -140,12 +142,13 @@ function createWidget() {
   let FOOTER_FONT_SIZE
   if (widgetSize == 'small') {
     ITEMS_COUNT = 4
-    HEADER_SIZE = 20
+    HEADER_SIZE = 25
     COLUMN_HEIGHT = 15
     SPACING = 3
     PADDING = SPACING
     LOGO_SIZE = new Size(20, COLUMN_HEIGHT)
     STATION_SIZE = new Size(80, COLUMN_HEIGHT)
+    INFO_SIZE = new Size(20, COLUMN_HEIGHT)
     DEPART_SIZE = new Size(20, COLUMN_HEIGHT)
     LOGO_FONT_SIZE = 12
     STATION_FONT_SIZE = 14
@@ -161,6 +164,7 @@ function createWidget() {
     PADDING = SPACING
     LOGO_SIZE = new Size(35, COLUMN_HEIGHT)
     STATION_SIZE = new Size(185, COLUMN_HEIGHT)
+    INFO_SIZE = new Size(25, COLUMN_HEIGHT)
     DEPART_SIZE = new Size(60, COLUMN_HEIGHT)
     LOGO_FONT_SIZE = 14
     STATION_FONT_SIZE = 20
@@ -176,6 +180,7 @@ function createWidget() {
     PADDING = SPACING
     LOGO_SIZE = new Size(35, COLUMN_HEIGHT)
     STATION_SIZE = new Size(185, COLUMN_HEIGHT)
+    INFO_SIZE = new Size(25, COLUMN_HEIGHT)
     DEPART_SIZE = new Size(60, COLUMN_HEIGHT)
     LOGO_FONT_SIZE = 14
     STATION_FONT_SIZE = 20
@@ -196,7 +201,7 @@ function createWidget() {
   const topStack = stack.addStack();
   topStack.layoutVertically();
   //topStack.centerAlignContent()
-  topStack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + DEPART_SIZE.width + 2*SPACING, HEADER_SIZE);
+  topStack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + DEPART_SIZE.width + INFO_SIZE.width + 3*SPACING, HEADER_SIZE);
   const stationName = topStack.addText(station.toString());
   stationName.textColor = Color.white();
   stationName.leftAlignText()
@@ -208,7 +213,7 @@ function createWidget() {
     // Will be set up with 3 columns to show line, destination and departure time
     const bottomStack = stack.addStack();
     bottomStack.spacing = SPACING
-    bottomStack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + DEPART_SIZE.width + 2*SPACING, COLUMN_HEIGHT + 2*SPACING)
+    bottomStack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + INFO_SIZE.size + DEPART_SIZE.width + 3*SPACING, COLUMN_HEIGHT + 2*SPACING)
     bottomStack.layoutHorizontally();
     bottomStack.centerAlignContent()
     
@@ -230,6 +235,35 @@ function createWidget() {
     destinationName.textColor = Color.white()
     destinationName.leftAlignText()
     destinationName.minimumScaleFactor = 0.95
+    
+    const infoStack = bottomStack.addStack()
+    infoStack.size = INFO_SIZE
+    infoStack.centerAlignContent()
+    let infotext = ""
+    // if ride is cancelled, show x, otherwise show occupancy
+    if(response[i].cancelled.toString() === "true") {
+      infoText = infoStack.addText("❌")
+      infoText.font = Font.lightSystemFont(9)
+    }
+    else {
+      if(response[i].occupancy.toString() === "LOW") {
+        infoText = infoStack.addText("–")
+        infoText.textColor = Color.green()
+      }
+      else if(response[i].occupancy.toString() === "HIGH") {
+        infoText = infoStack.addText("+")
+        infoText.textColor = Color.red()
+      }
+      else {
+        // use medium as fallback value (e.g. if ocuppancy is N/A)
+        infoText = infoStack.addText("=")
+        infoText.textColor = Color.yellow()
+      }
+      infoText.font = Font.boldSystemFont(STATION_FONT_SIZE)
+    }
+    infoText.leftAlignText()
+    infoText.minimumScaleFactor = 0.5
+    
     const departureStack = bottomStack.addStack();
     departureStack.size = DEPART_SIZE
     departureStack.bottomAlignContent()
@@ -247,7 +281,7 @@ function createWidget() {
   }
   const updatedstack = stack.addStack();
   updatedstack.bottomAlignContent()
-  updatedstack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + DEPART_SIZE.width + 2*SPACING, FOOTER_HEIGHT)
+  updatedstack.size = new Size(LOGO_SIZE.width + STATION_SIZE.width + INFO_SIZE.width + DEPART_SIZE.width + 3*SPACING, FOOTER_HEIGHT)
   let lastUpdateTime = updatedstack.addText(createDateString())
   lastUpdateTime.font = Font.lightSystemFont(8)
   lastUpdateTime.textColor = Color.white()

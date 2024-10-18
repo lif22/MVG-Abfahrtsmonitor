@@ -6,7 +6,7 @@
 Fork by Florian Lietz (https://github.com/lif22) of MVG Abfahrtsmonitor by Jakob Eckert (https://github.com/eckertj/MVG-Abfahrtsmonitor) with updated MVG API endpoints as old Fahrinfo" API is deprecated
 06.07.2024
 Endpoints used:
-- https://www.mvg.de/api/fib/v2
+- https://www.mvg.de/api/bgw-pt/v3
 - https://www.mvg.de/.rest/zdm
 
 -----------------------------
@@ -47,9 +47,9 @@ gelegt und individuell konfiguriert werden!
 //const station = "Karlsplatz"
 const station = args.widgetParameter
 //Adds "&" to combined station and replace umlauts
-let clearstation = station.replace(" ","&").replace("ß","ss").replace("ü","ue").replace("ä","ae").replace("ö","oe")
+let clearstation = station.replace(" ","%20").replace("ß","ss").replace("ü","ue").replace("ä","ae").replace("ö","oe")
 //Get Station ID
-const mvgstatID = "https://www.mvg.de/api/fib/v2/location?query=" + clearstation
+const mvgstatID = "https://www.mvg.de/api/bgw-pt/v3/locations?query=" + clearstation
 let responseID = await new Request(mvgstatID).loadJSON();
 // Store the MVG ID
 const mvgID = responseID[0].globalId.toString()
@@ -68,7 +68,7 @@ for (const [key, value] of Object.entries(transportMeans)) {
 }
 console.log(transportTypes)
 //Get departures
-const mvgReq = "https://www.mvg.de/api/fib/v2/departure?query&globalId=" + mvgID + "&offsetInMinutes=0&limit=10&transportTypes=" + transportTypes
+const mvgReq = "https://www.mvg.de/api/bgw-pt/v3/departures?query&globalId=" + mvgID + "&offsetInMinutes=0&limit=10&transportTypes=" + transportTypes
 let response = await new Request(mvgReq).loadJSON()
 //Calculates Departure time
 function calculateTimeOffset(times)
